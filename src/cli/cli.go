@@ -20,8 +20,7 @@ func Run() (err error) {
 			Usage:       "add a new password",
 			Description: "add a new password",
 			Action: func(c *cli.Context) error {
-				glitzy.Add()
-				return nil
+				return glitzy.Add()
 			},
 		},
 		{
@@ -29,8 +28,7 @@ func Run() (err error) {
 			Usage:       "wipe the entire passwords",
 			Description: "wipe the entire passwords",
 			Action: func(c *cli.Context) error {
-				glitzy.Wipe()
-				return nil
+				return glitzy.Wipe()
 			},
 		},
 	}
