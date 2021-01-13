@@ -2,16 +2,18 @@ package glitzy
 
 import (
 	"fmt"
-	"time"
+
+	"github.com/iamstefin/glitzy/src/utils"
 )
 
 // Add will add a new password to the database
-func Add() {
-	fmt.Println("Add a new password")
-	time.Sleep(1 * time.Second)
+func Add() (err error) {
+	fmt.Println(utils.GetInfo())
+	return
 }
 
 // Wipe will remove all the passwords
-func Wipe() {
+func Wipe() (err error) {
 	fmt.Println("Clean the entire passwords")
+	return
 }
