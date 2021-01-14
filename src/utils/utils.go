@@ -1,68 +1,59 @@
 package utils
 
 import (
-	"bufio"
-	"fmt"
+	"errors"
 	"log"
-	"os"
-	"strings"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"github.com/iamstefin/glitzy/src/models"
+	"github.com/manifoldco/promptui"
 )
 
-// User hold the info of a credential
-type User struct {
-	serviceName string
-	username    string
-	password    string
-}
-
 // GetInfo input the user info from terminal
-func GetInfo() User {
-	var service string
-	var username string
-	var password string
-	for {
-		service = getNormalString("Enter the Service Name: ")
-		if service != "" {
-			break
-		}
-	}
-	for {
-		username = getNormalString("Enter the username: ")
-		if username != "" {
-			break
-		}
-	}
-	for {
-		password = getProtectedString("Enter the password: ")
-		if password != "" {
-			break
-		}
-	}
-
-	return User{service, username, password}
+func GetInfo() (user models.User) {
+	user.ServiceName = getNormalString("Service Name ")
+	user.Username = getNormalString("Username ")
+	user.Password = getProtectedString("Password")
+	return user
 }
 
 // getNormalString input normal text from terminal
 func getNormalString(promptText string) string {
-	fmt.Print(promptText)
-	reader := bufio.NewReader(os.Stdin)
-	value, err := reader.ReadString('\n')
+	validate := func(input string) error {
+		if len(input) < 4 {
+			return errors.New("Must be more than 4 characters")
+		}
+		return nil
+	}
+	prompt := promptui.Prompt{
+		Label:    promptText,
+		Validate: validate,
+	}
+	result, err := prompt.Run()
+
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	value = strings.ReplaceAll(value, "\n", "")
-	return value
+	return result
 }
 
 // getProtectedString input protected text from terminal
 func getProtectedString(promptText string) string {
-	fmt.Print(promptText)
-	val, err := terminal.ReadPassword(0)
+	validate := func(input string) error {
+		if len(input) < 6 {
+			return errors.New("Password must have more than 6 characters")
+		}
+		return nil
+	}
+
+	prompt := promptui.Prompt{
+		Label:    promptText,
+		Validate: validate,
+		Mask:     '.',
+	}
+	result, err := prompt.Run()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	value := strings.ReplaceAll(string(val), "\n", "")
-	return value
+
+	return result
 }
