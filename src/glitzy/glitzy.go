@@ -26,14 +26,18 @@ func Add() (err error) {
 
 // Wipe will remove all the passwords
 func Wipe() (err error) {
-	fmt.Println("Clean the entire passwords")
+	db, err := initDB()
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	fmt.Printf("%v Records Deleted \n", db.Exec("DELETE FROM users").RowsAffected)
 	return
 }
 
 func initDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("failed to connect database")
+		return nil, err
 	}
 	db.AutoMigrate(&models.User{})
 	return db, nil
