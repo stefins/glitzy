@@ -11,3 +11,8 @@ type User struct {
 	Username    string
 	Password    string
 }
+
+type Main struct {
+	gorm.Model
+	PasswordHash string
+}

@@ -1,11 +1,16 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/iamstefin/glitzy/src/models"
 	"github.com/manifoldco/promptui"
+	"gorm.io/gorm"
 )
 
 // GetInfo input the user info from terminal
@@ -56,4 +61,30 @@ func getProtectedString(promptText string) string {
 	}
 
 	return result
+}
+
+// AddOrCheckMainPassword add a main password to the application
+func AddOrCheckMainPassword(db *gorm.DB) {
+	if (db.Find(&models.Main{}).RowsAffected == 0) {
+		fmt.Println("Main Password not configured!")
+		mainPass := getProtectedString("Enter the Main Password")
+		hash := sha256.New()
+		hash.Write([]byte(mainPass))
+		err := db.Create(&models.Main{PasswordHash: hex.EncodeToString(hash.Sum(nil))}).Error
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+	} else {
+		var dbInfo models.Main
+		db.First(&dbInfo)
+		userInputMainPass := getProtectedString("Enter the Main Password")
+		hash := sha256.New()
+		hash.Write([]byte(userInputMainPass))
+		if dbInfo.PasswordHash == hex.EncodeToString(hash.Sum(nil)) {
+			fmt.Println("Authenticated with Main Password")
+		} else {
+			fmt.Println("Invalid Password!")
+			os.Exit(0)
+		}
+	}
 }

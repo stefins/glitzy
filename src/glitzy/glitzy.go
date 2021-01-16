@@ -3,6 +3,7 @@ package glitzy
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/iamstefin/glitzy/src/models"
 	"github.com/iamstefin/glitzy/src/utils"
@@ -16,6 +17,7 @@ func Add() (err error) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	utils.AddOrCheckMainPassword(db)
 	err = db.Create(utils.GetInfo()).Error
 	if err != nil {
 		log.Fatalf("Failed to add password!")
@@ -30,7 +32,9 @@ func Wipe() (err error) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	utils.AddOrCheckMainPassword(db)
 	fmt.Printf("%v Records Deleted \n", db.Exec("DELETE FROM users").RowsAffected)
+	os.Remove("test.db")
 	return
 }
 
@@ -40,5 +44,6 @@ func initDB() (*gorm.DB, error) {
 		return nil, err
 	}
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Main{})
 	return db, nil
 }
