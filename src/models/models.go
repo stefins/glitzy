@@ -7,9 +7,9 @@ import (
 // User hold the info of a credential
 type User struct {
 	gorm.Model
-	ServiceName string
-	Username    string
-	Password    string
+	Name     string `gorm:"column:name"`
+	Username string
+	Password string
 }
 
 type Main struct {

@@ -31,6 +31,14 @@ func Run() (err error) {
 				return glitzy.Wipe()
 			},
 		},
+		{
+			Name:        "search",
+			Usage:       "Search for password",
+			Description: "Search for password",
+			Action: func(c *cli.Context) error {
+				return glitzy.Search()
+			},
+		},
 	}
 	return app.Run(os.Args)
 }
