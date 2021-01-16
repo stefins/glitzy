@@ -15,14 +15,14 @@ import (
 
 // GetInfo input the user info from terminal
 func GetInfo() *models.User {
-	ServiceName := getNormalString("Service Name ")
-	Username := getNormalString("Username ")
+	ServiceName := GetNormalString("Service Name ")
+	Username := GetNormalString("Username ")
 	Password := getProtectedString("Password")
-	return &models.User{ServiceName: ServiceName, Username: Username, Password: Password}
+	return &models.User{Name: ServiceName, Username: Username, Password: Password}
 }
 
-// getNormalString input normal text from terminal
-func getNormalString(promptText string) string {
+// GetNormalString input normal text from terminal
+func GetNormalString(promptText string) string {
 	validate := func(input string) error {
 		if len(input) < 4 {
 			return errors.New("Must be more than 4 characters")
@@ -68,6 +68,10 @@ func AddOrCheckMainPassword(db *gorm.DB) {
 	if (db.Find(&models.Main{}).RowsAffected == 0) {
 		fmt.Println("Main Password not configured!")
 		mainPass := getProtectedString("Enter the Main Password")
+		mainPassRe := getProtectedString("Enter the Main Password again")
+		if mainPass != mainPassRe {
+			log.Fatalf("Password Mismatch!")
+		}
 		hash := sha256.New()
 		hash.Write([]byte(mainPass))
 		err := db.Create(&models.Main{PasswordHash: hex.EncodeToString(hash.Sum(nil))}).Error
