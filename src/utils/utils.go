@@ -9,11 +9,11 @@ import (
 )
 
 // GetInfo input the user info from terminal
-func GetInfo() (user models.User) {
-	user.ServiceName = getNormalString("Service Name ")
-	user.Username = getNormalString("Username ")
-	user.Password = getProtectedString("Password")
-	return user
+func GetInfo() *models.User {
+	ServiceName := getNormalString("Service Name ")
+	Username := getNormalString("Username ")
+	Password := getProtectedString("Password")
+	return &models.User{ServiceName: ServiceName, Username: Username, Password: Password}
 }
 
 // getNormalString input normal text from terminal

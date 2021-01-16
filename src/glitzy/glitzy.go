@@ -2,13 +2,25 @@ package glitzy
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/iamstefin/glitzy/src/models"
 	"github.com/iamstefin/glitzy/src/utils"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 // Add will add a new password to the database
 func Add() (err error) {
-	fmt.Println(utils.GetInfo())
+	db, err := initDB()
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	err = db.Create(utils.GetInfo()).Error
+	if err != nil {
+		log.Fatalf("Failed to add password!")
+	}
+	fmt.Println("Data added!")
 	return
 }
 
@@ -16,4 +28,13 @@ func Add() (err error) {
 func Wipe() (err error) {
 	fmt.Println("Clean the entire passwords")
 	return
+}
+
+func initDB() (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect database")
+	}
+	db.AutoMigrate(&models.User{})
+	return db, nil
 }
