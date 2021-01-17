@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -10,15 +13,21 @@ import (
 
 	"github.com/iamstefin/glitzy/src/models"
 	"github.com/manifoldco/promptui"
+	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 )
 
 // GetInfo input the user info from terminal
-func GetInfo() *models.User {
+func GetInfo(db *gorm.DB) *models.User {
+	MainPassword := AddOrCheckMainPassword(db)
 	ServiceName := GetNormalString("Service Name ")
 	Username := GetNormalString("Username ")
 	Password := getProtectedString("Password")
-	return &models.User{Name: ServiceName, Username: Username, Password: Password}
+	cipherText, err := Encrypt([]byte(MainPassword), []byte(Password))
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	return &models.User{Name: ServiceName, Username: Username, Password: hex.EncodeToString(cipherText)}
 }
 
 // GetNormalString input normal text from terminal
@@ -64,7 +73,7 @@ func getProtectedString(promptText string) string {
 }
 
 // AddOrCheckMainPassword add a main password to the application
-func AddOrCheckMainPassword(db *gorm.DB) {
+func AddOrCheckMainPassword(db *gorm.DB) string {
 	if (db.Find(&models.Main{}).RowsAffected == 0) {
 		fmt.Println("Main Password not configured!")
 		mainPass := getProtectedString("Enter the Main Password")
@@ -78,6 +87,7 @@ func AddOrCheckMainPassword(db *gorm.DB) {
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
+		return mainPassRe
 	} else {
 		var dbInfo models.Main
 		db.First(&dbInfo)
@@ -90,5 +100,67 @@ func AddOrCheckMainPassword(db *gorm.DB) {
 			fmt.Println("Invalid Password!")
 			os.Exit(0)
 		}
+		return userInputMainPass
 	}
+}
+
+// Encrypt is used to encrypt the clear text password
+func Encrypt(key, data []byte) ([]byte, error) {
+	key, salt, err := DeriveKey(key, nil)
+	if err != nil {
+		return nil, err
+	}
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = rand.Read(nonce); err != nil {
+		return nil, err
+	}
+	ciphertext := gcm.Seal(nonce, nonce, data, nil)
+	ciphertext = append(ciphertext, salt...)
+	return ciphertext, nil
+}
+
+// Decrypt is used to decrypt the cipher with the password
+func Decrypt(key, data []byte) ([]byte, error) {
+	salt, data := data[len(data)-32:], data[:len(data)-32]
+	key, _, err := DeriveKey(key, salt)
+	if err != nil {
+		return nil, err
+	}
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+	nonce, ciphertext := data[:gcm.NonceSize()], data[gcm.NonceSize():]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, err
+	}
+	return plaintext, nil
+}
+
+// DeriveKey derive a key with the password
+func DeriveKey(password, salt []byte) ([]byte, []byte, error) {
+	if salt == nil {
+		salt = make([]byte, 32)
+		if _, err := rand.Read(salt); err != nil {
+			return nil, nil, err
+		}
+	}
+	key, err := scrypt.Key(password, salt, 1048576, 8, 1, 32)
+	if err != nil {
+		return nil, nil, err
+	}
+	return key, salt, nil
 }

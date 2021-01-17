@@ -1,6 +1,7 @@
 package glitzy
 
 import (
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -18,8 +19,7 @@ func Add() (err error) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	utils.AddOrCheckMainPassword(db)
-	err = db.Create(utils.GetInfo()).Error
+	err = db.Create(utils.GetInfo(db)).Error
 	if err != nil {
 		log.Fatalf("Failed to add password!")
 	}
@@ -33,6 +33,7 @@ func Search() (err error) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	passwd := utils.AddOrCheckMainPassword(db)
 	searchTerm := utils.GetNormalString("Enter the search term")
 	var rtrmdl []models.User
 	if db.Where("name LIKE ?", "%"+searchTerm+"%").Find(&rtrmdl).RowsAffected == 0 {
@@ -56,7 +57,15 @@ func Search() (err error) {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf("The Password for %v Is %v\n", rtrmdl[i].Username, rtrmdl[i].Password)
+	cipherText, err := hex.DecodeString(rtrmdl[i].Password)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	plainPassword, err := utils.Decrypt([]byte(passwd), cipherText)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	fmt.Printf("The Password for %v Is %v\n", rtrmdl[i].Username, string(plainPassword))
 	return nil
 }
 
