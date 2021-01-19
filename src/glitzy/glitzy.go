@@ -77,12 +77,17 @@ func Wipe() (err error) {
 	}
 	utils.AddOrCheckMainPassword(db)
 	fmt.Printf("%v Records Deleted \n", db.Exec("DELETE FROM users").RowsAffected)
-	os.Remove("test.db")
+	var HOME = os.Getenv("HOME")
+	os.Remove(HOME + "/.glitzy/password.db")
 	return
 }
 
 func initDB() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	if err := utils.AddOrCreateConfigDir(); err != nil {
+		log.Fatalf("%v", err)
+	}
+	var HOME = os.Getenv("HOME")
+	db, err := gorm.Open(sqlite.Open(HOME+"/.glitzy/password.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

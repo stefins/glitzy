@@ -164,3 +164,17 @@ func DeriveKey(password, salt []byte) ([]byte, []byte, error) {
 	}
 	return key, salt, nil
 }
+
+// AddOrCreateConfigDir creates the .glitzy folder in the home directory
+func AddOrCreateConfigDir() error {
+	var HOME = os.Getenv("HOME")
+	if _, err := os.Stat(HOME + "/.glitzy"); err != nil {
+		if os.IsNotExist(err) {
+			err := os.Mkdir(HOME+"/.glitzy", 0755)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
