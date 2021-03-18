@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/iamstefin/glitzy/src/cli"
+	"github.com/stefins/glitzy/src/cli"
 )
 
 func main() {

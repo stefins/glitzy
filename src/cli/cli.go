@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/iamstefin/glitzy/src/glitzy"
+	"github.com/stefins/glitzy/src/glitzy"
 	"github.com/urfave/cli/v2"
 )
 

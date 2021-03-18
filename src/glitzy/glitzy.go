@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/iamstefin/glitzy/src/models"
-	"github.com/iamstefin/glitzy/src/utils"
 	"github.com/manifoldco/promptui"
+	"github.com/stefins/glitzy/src/models"
+	"github.com/stefins/glitzy/src/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -52,7 +52,6 @@ func Search() (err error) {
 		Templates: templates,
 	}
 	i, _, err := prompt.Run()
-
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
@@ -77,7 +76,7 @@ func Wipe() (err error) {
 	}
 	utils.AddOrCheckMainPassword(db)
 	fmt.Printf("%v Records Deleted \n", db.Exec("DELETE FROM users").RowsAffected)
-	var HOME = os.Getenv("HOME")
+	HOME := os.Getenv("HOME")
 	os.Remove(HOME + "/.glitzy/password.db")
 	return
 }
@@ -86,7 +85,7 @@ func initDB() (*gorm.DB, error) {
 	if err := utils.AddOrCreateConfigDir(); err != nil {
 		log.Fatalf("%v", err)
 	}
-	var HOME = os.Getenv("HOME")
+	HOME := os.Getenv("HOME")
 	db, err := gorm.Open(sqlite.Open(HOME+"/.glitzy/password.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err

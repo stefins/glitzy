@@ -1,4 +1,4 @@
-module github.com/iamstefin/glitzy
+module github.com/stefins/glitzy
 
 go 1.14
 

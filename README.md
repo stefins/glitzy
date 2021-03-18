@@ -4,7 +4,13 @@ A simple password manager
 ### Installation
 Using Go
 ```bash
-go get -u github.com/iamstefin/glitzy
+go get -u github.com/stefins/glitzy
+```
+
+Using Homebrew
+```bash
+brew tap stefins/glitzy
+brew install glitzy
 ```
 
 ### Usage 

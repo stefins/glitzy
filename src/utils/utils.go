@@ -11,8 +11,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/iamstefin/glitzy/src/models"
 	"github.com/manifoldco/promptui"
+	"github.com/stefins/glitzy/src/models"
 	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 )
@@ -34,7 +34,7 @@ func GetInfo(db *gorm.DB) *models.User {
 func GetNormalString(promptText string) string {
 	validate := func(input string) error {
 		if len(input) < 4 {
-			return errors.New("Must be more than 4 characters")
+			return errors.New("must be more than 4 characters")
 		}
 		return nil
 	}
@@ -43,7 +43,6 @@ func GetNormalString(promptText string) string {
 		Validate: validate,
 	}
 	result, err := prompt.Run()
-
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -54,7 +53,7 @@ func GetNormalString(promptText string) string {
 func getProtectedString(promptText string) string {
 	validate := func(input string) error {
 		if len(input) < 6 {
-			return errors.New("Password must have more than 6 characters")
+			return errors.New("password must have more than 6 characters")
 		}
 		return nil
 	}
@@ -167,7 +166,7 @@ func DeriveKey(password, salt []byte) ([]byte, []byte, error) {
 
 // AddOrCreateConfigDir creates the .glitzy folder in the home directory
 func AddOrCreateConfigDir() error {
-	var HOME = os.Getenv("HOME")
+	HOME := os.Getenv("HOME")
 	if _, err := os.Stat(HOME + "/.glitzy"); err != nil {
 		if os.IsNotExist(err) {
 			err := os.Mkdir(HOME+"/.glitzy", 0755)
