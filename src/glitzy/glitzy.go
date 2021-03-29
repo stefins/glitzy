@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/atotto/clipboard"
 	"github.com/manifoldco/promptui"
 	"github.com/stefins/glitzy/src/models"
 	"github.com/stefins/glitzy/src/utils"
@@ -97,7 +98,8 @@ func Search() (err error) {
 		log.Fatalf("%v", err)
 	}
 	fmt.Printf("The Password for %v Is %v\n", rtrmdl[i].Username, string(plainPassword))
-	return nil
+	fmt.Printf("Password copied to clipboard\n")
+	return clipboard.WriteAll(string(plainPassword))
 }
 
 // Wipe will remove all the passwords

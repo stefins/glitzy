@@ -61,7 +61,7 @@ func getProtectedString(promptText string) string {
 	prompt := promptui.Prompt{
 		Label:    promptText,
 		Validate: validate,
-		Mask:     '.',
+		Mask:     '*',
 	}
 	result, err := prompt.Run()
 	if err != nil {
