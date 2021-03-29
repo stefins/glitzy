@@ -27,6 +27,38 @@ func Add() (err error) {
 	return
 }
 
+// DeleteIndividual will delete individual password in the database
+func DeleteIndividual() (err error) {
+	db, err := initDB()
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	utils.AddOrCheckMainPassword(db)
+	searchTerm := utils.GetNormalString("Enter the search term")
+	var rtrmdl []models.User
+	if db.Where("name LIKE ?", "%"+searchTerm+"%").Find(&rtrmdl).RowsAffected == 0 {
+		fmt.Println("Password not found!")
+		os.Exit(0)
+	}
+	templates := &promptui.SelectTemplates{
+		Active:   " \U00002705 {{ .Name | cyan }} ({{ .Username }})",
+		Inactive: " {{ .Name | cyan }} ({{ .Username }})",
+		Selected: " \U00002705 {{ .Name }} ({{ .Username }})",
+	}
+	prompt := promptui.Select{
+		Label:     "Select",
+		Items:     rtrmdl,
+		HideHelp:  true,
+		Templates: templates,
+	}
+	i, _, err := prompt.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+	return db.Delete(&rtrmdl[i]).Error
+}
+
 // Search will search for the passwords
 func Search() (err error) {
 	db, err := initDB()
