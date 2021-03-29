@@ -26,6 +26,7 @@ COMMANDS:
    add      add a new password
    wipe     wipe the entire passwords
    search   Search for password
+   delete   Delete a password
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
